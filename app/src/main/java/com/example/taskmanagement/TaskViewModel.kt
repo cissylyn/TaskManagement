@@ -30,6 +30,11 @@ class TaskViewModel(private  val repository: TaskItemRepository):ViewModel()
    fun updateTaskItem(taskItem: TaskItem)=viewModelScope.launch{
        repository.updateTaskItem(taskItem)
    }
+
+    fun deleteTaskItem(taskItem: TaskItem) = viewModelScope.launch {
+        repository.deleteTaskItem(taskItem)
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun setCompleted(taskItem: TaskItem)=viewModelScope.launch{
        if (!taskItem.isCompleted())

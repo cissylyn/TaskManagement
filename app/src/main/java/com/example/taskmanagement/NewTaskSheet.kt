@@ -37,7 +37,7 @@ class NewTaskSheet(var taskItem: TaskItem?) : BottomSheetDialogFragment() {
             binding.taskTitle.text = "New Task"
         }
 
-        taskViewModel = ViewModelProvider(requireActivity()).get(TaskViewModel::class.java)
+        taskViewModel = ViewModelProvider(requireActivity())[TaskViewModel::class.java]
 
         binding.saveButton.setOnClickListener {
             saveAction()
