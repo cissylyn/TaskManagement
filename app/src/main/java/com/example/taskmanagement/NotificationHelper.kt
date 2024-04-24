@@ -1,58 +1,58 @@
 package com.example.taskmanagement
-
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
+import android.Manifest
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
-import android.os.Build
-import android.util.Log
+import android.content.pm.PackageManager
+import android.graphics.Color
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
-import com.example.taskmanagement.R
+import androidx.core.app.NotificationManagerCompat
 
-class NotificationHelper(private val context: Context) {
+object NotificationHelper {
 
-    val notificationManager: NotificationManager =
-        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    private const val CHANNEL_ID = "task_notifications"
+    private const val NOTIFICATION_ID = 1001
 
-    init {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                "Task Notifications",
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = "Task Notification Channel"
-            }
-            notificationManager.createNotificationChannel(channel)
-            Log.d("NotificationHelper", "Created Notification Channel with ID: $CHANNEL_ID")
-        }
-    }
+    fun createNotification(context: Context, title: String, content: String) {
+        val intent = Intent(context, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        val pendingIntent = PendingIntent.getActivity(context, 0, intent,
+            PendingIntent.FLAG_IMMUTABLE)
 
-    fun createNotification(title: String, content: String, intent: Intent): Notification {
-        val pendingIntent = PendingIntent.getActivity(
-            context,
-            0,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
-        )
-
-        return NotificationCompat.Builder(context, CHANNEL_ID)
-            .also {
-                Log.d("NotificationHelper", "Building notification with Channel ID: $CHANNEL_ID")
-            }
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(R.drawable.baseline_circle_notifications_24)
             .setContentTitle(title)
             .setContentText(content)
-            .setSmallIcon(R.drawable.notification_icon)
-            .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.notification_large_icon))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
+            .setColor(Color.BLUE)
             .setAutoCancel(true)
-            .build()
+
+        val notification = builder.build()
+
+//        val notificationManager = NotificationManagerCompat.from(context)
+//        if (ActivityCompat.checkSelfPermission(
+//                this,
+//                Manifest.permission.POST_NOTIFICATIONS
+//            ) != PackageManager.PERMISSION_GRANTED
+//        ) {
+//            // TODO: Consider calling
+//            //    ActivityCompat#requestPermissions
+//            // here to request the missing permissions, and then overriding
+//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//            //                                          int[] grantResults)
+//            // to handle the case where the user grants the permission. See the documentation
+//            // for ActivityCompat#requestPermissions for more details.
+//            return
+//        }
+//        notificationManager.notify(NOTIFICATION_ID, notification)
     }
 
-    companion object {
-        const val CHANNEL_ID = "task_notifications"
+    fun createNotificationForTask(context: Context, taskName: String, taskDescription: String) {
+        val title = "Task Due: $taskName"
+        val content = taskDescription
+
+        createNotification(context, title, content)
     }
 }

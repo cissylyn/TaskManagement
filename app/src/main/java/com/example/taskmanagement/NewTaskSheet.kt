@@ -4,6 +4,7 @@ import android.app.TimePickerDialog
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,13 +40,16 @@ class NewTaskSheet(var taskItem: TaskItem?) : BottomSheetDialogFragment() {
 
         taskViewModel = ViewModelProvider(requireActivity())[TaskViewModel::class.java]
 
-        binding.saveButton.setOnClickListener {
-            saveAction()
-        }
+
 
         binding.timePickerButton.setOnClickListener {
             openTimePicker()
         }
+        binding.saveButton.setOnClickListener {
+            saveAction()
+        }
+
+
 
         // Observe selectedTaskDescription to update description TextView
         //taskViewModel.selectedTaskDescription.observe(viewLifecycleOwner) { description ->
@@ -79,15 +83,13 @@ class NewTaskSheet(var taskItem: TaskItem?) : BottomSheetDialogFragment() {
     private fun saveAction() {
         val name = binding.name.text.toString()
         val desc = binding.desc.text.toString()
-
-        // Add the description parameter
-        //val description = "Description: $name - $desc"
         val dueTimeString = dueTime?.let { TaskItem.timeFormatter.format(it) }
 
+        Log.d("NewTaskSheet", "Name: $name, Desc: $desc, Due Time String: $dueTimeString")
 
         if (taskItem == null) {
-            val newTask = TaskItem(name, desc, null, null)
-           // taskViewModel.addTaskItem(newTask, description) // Pass description to addTaskItem
+            val newTask = TaskItem(name, desc,dueTimeString , null)
+
             taskViewModel.addTaskItem(newTask)
         } else {
             taskItem!!.name = name
@@ -100,6 +102,10 @@ class NewTaskSheet(var taskItem: TaskItem?) : BottomSheetDialogFragment() {
         binding.desc.setText("")
         dismiss()
     }
+
+
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater,

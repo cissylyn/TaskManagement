@@ -1,12 +1,15 @@
 package com.example.taskmanagement
 
 import android.app.NotificationManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModelProvider
@@ -24,11 +27,17 @@ class MainActivity : AppCompatActivity(),TaskItemClickListener {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        //added
+        val filter = IntentFilter("com.example.taskmanagement.NOTIFICATION_ACTION")
+        registerReceiver(notificationReceiver, filter)
+//added
         binding.newTaskButton.setOnClickListener {
             NewTaskSheet(taskItem = null).show(supportFragmentManager, "newTaskTag")
 
         }
+
+
+
         setRecyclerView()
 
 //        testNotification()
@@ -91,6 +100,23 @@ class MainActivity : AppCompatActivity(),TaskItemClickListener {
 //            Log.e("NotificationTest", "Error creating notification", e)
 //        }
 //    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Unregister the receiver when the activity is destroyed
+        unregisterReceiver(notificationReceiver)
+    }
+
+    private val notificationReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            // Handle notification action here
+            val message = intent?.getStringExtra("message")
+            // For example, show a toast
+            message?.let {
+                Toast.makeText(context, "Notification Action: $it", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
 
 }
