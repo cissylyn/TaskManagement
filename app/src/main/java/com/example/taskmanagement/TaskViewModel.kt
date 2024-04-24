@@ -21,7 +21,7 @@ import androidx.lifecycle.asLiveData
 class TaskViewModel(private  val repository: TaskItemRepository,  private val context: Context):ViewModel()
 {
 
-    private val notificationHelper = NotificationHelper(context)
+//    private val notificationHelper = NotificationHelper(context)
 
     var taskItems: LiveData<List<TaskItem>> = repository.allTaskItems.asLiveData()
     //added

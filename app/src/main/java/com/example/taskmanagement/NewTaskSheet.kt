@@ -4,6 +4,7 @@ import android.app.TimePickerDialog
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -55,13 +56,16 @@ class NewTaskSheet(var taskItem: TaskItem?) : BottomSheetDialogFragment() {
 
         taskViewModel = ViewModelProvider(requireActivity())[TaskViewModel::class.java]
 
-        binding.saveButton.setOnClickListener {
-            saveAction()
-        }
+
 
         binding.timePickerButton.setOnClickListener {
             openTimePicker()
         }
+        binding.saveButton.setOnClickListener {
+            saveAction()
+        }
+
+
 
         binding.startDateButton.setOnClickListener {
             openStartDatePicker()
@@ -143,10 +147,17 @@ class NewTaskSheet(var taskItem: TaskItem?) : BottomSheetDialogFragment() {
     private fun saveAction() {
         val name = binding.name.text.toString()
         val desc = binding.desc.text.toString()
+
+        // Add the description parameter
+        //val description = "Description: $name - $desc"
         val dueTimeString = dueTime?.let { TaskItem.timeFormatter.format(it) }
 
+        Log.d("NewTaskSheet", "Name: $name, Desc: $desc, Due Time String: $dueTimeString")
+
         if (taskItem == null) {
-            val newTask = TaskItem(name=name, desc=desc, null, null, startDateString=startDateString, endDateString=endDateString)
+//            val newTask = TaskItem(name, desc,dueTimeString , null)
+
+            val newTask = TaskItem(name=name, desc=desc, dueTimeString, null, startDateString=startDateString, endDateString=endDateString)
             taskViewModel.addTaskItem(newTask)
         } else {
             taskItem!!.name = name

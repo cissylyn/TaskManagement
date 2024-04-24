@@ -3,11 +3,16 @@ package com.example.taskmanagement
 import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.pm.PackageManager
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
@@ -44,19 +49,23 @@ class MainActivity : AppCompatActivity(),TaskItemClickListener {
         showNotification(this, notificationId, notificationBuilder)
 
 
+        //added
+        val filter = IntentFilter("com.example.taskmanagement.NOTIFICATION_ACTION")
+        registerReceiver(notificationReceiver, filter)
+//added
         binding.newTaskButton.setOnClickListener {
             NewTaskSheet(taskItem = null).show(supportFragmentManager, "newTaskTag")
 
         }
+
+
+
         setRecyclerView()
 
 //        testNotification()
 
-//        addOrUpdateNotification(taskItem = taskName)
-
 
         //setContentView(R.layout.activity_main),i commented
-
     }
 
     private fun setRecyclerView() {
@@ -195,6 +204,23 @@ class MainActivity : AppCompatActivity(),TaskItemClickListener {
 //            Log.e("NotificationTest", "Error creating notification", e)
 //        }
 //    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Unregister the receiver when the activity is destroyed
+        unregisterReceiver(notificationReceiver)
+    }
+
+    private val notificationReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            // Handle notification action here
+            val message = intent?.getStringExtra("message")
+            // For example, show a toast
+            message?.let {
+                Toast.makeText(context, "Notification Action: $it", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
 
 }
