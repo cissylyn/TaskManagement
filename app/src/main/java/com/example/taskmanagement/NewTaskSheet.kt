@@ -46,6 +46,11 @@ class NewTaskSheet(var taskItem: TaskItem?) : BottomSheetDialogFragment() {
         binding.timePickerButton.setOnClickListener {
             openTimePicker()
         }
+
+        // Observe selectedTaskDescription to update description TextView
+        //taskViewModel.selectedTaskDescription.observe(viewLifecycleOwner) { description ->
+          //  binding.desc.text = description
+       // }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -74,15 +79,22 @@ class NewTaskSheet(var taskItem: TaskItem?) : BottomSheetDialogFragment() {
     private fun saveAction() {
         val name = binding.name.text.toString()
         val desc = binding.desc.text.toString()
+
+        // Add the description parameter
+        //val description = "Description: $name - $desc"
         val dueTimeString = dueTime?.let { TaskItem.timeFormatter.format(it) }
+
+
         if (taskItem == null) {
             val newTask = TaskItem(name, desc, null, null)
+           // taskViewModel.addTaskItem(newTask, description) // Pass description to addTaskItem
             taskViewModel.addTaskItem(newTask)
         } else {
             taskItem!!.name = name
             taskItem!!.desc = desc
             taskItem!!.dueTimeString = dueTimeString
-            taskViewModel.updateTaskItem(taskItem!!)
+           taskViewModel.updateTaskItem(taskItem!!)
+
         }
         binding.name.setText("")
         binding.desc.setText("")

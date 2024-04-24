@@ -24,16 +24,42 @@ class TaskViewModel(private  val repository: TaskItemRepository,  private val co
     private val notificationHelper = NotificationHelper(context)
 
     var taskItems: LiveData<List<TaskItem>> = repository.allTaskItems.asLiveData()
+    //added
+    private val _selectedTaskDescription = MutableLiveData<String>()
+    val selectedTaskDescription: LiveData<String>
+        get() = _selectedTaskDescription
+
+    //added
 
 
-    fun addTaskItem(newTask:TaskItem)=viewModelScope.launch {
-       repository.insertTaskItem(newTask)
-   }
+//   fun addTaskItem(newTask:TaskItem)=viewModelScope.launch {
+//      repository.insertTaskItem(newTask)
+//
+//   }
+fun addTaskItem(newTask:TaskItem)=viewModelScope.launch {
+    repository.insertTaskItem(newTask)
+}
+    //added
+
+//    fun addTaskItem(newTask: TaskItem, description: String? = null) = viewModelScope.launch {
+//        repository.insertTaskItem(newTask)
+//        description?.let { _selectedTaskDescription.value = it }
+//    }
 
 
-   fun updateTaskItem(taskItem: TaskItem)=viewModelScope.launch{
-       repository.updateTaskItem(taskItem)
-   }
+    //added
+
+
+//    fun updateTaskItem(taskItem: TaskItem, description: String) = viewModelScope.launch {
+//        repository.updateTaskItem(taskItem)
+//        _selectedTaskDescription.value = description
+//    }
+
+    fun updateTaskItem(taskItem: TaskItem)=viewModelScope.launch{
+        repository.updateTaskItem(taskItem)
+    }
+
+
 
     fun deleteTaskItem(taskItem: TaskItem) = viewModelScope.launch {
         repository.deleteTaskItem(taskItem)
@@ -84,6 +110,12 @@ class TaskViewModel(private  val repository: TaskItemRepository,  private val co
         )
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmManager.cancel(pendingIntent)
+    }
+
+    fun addTaskItem(newTask: TaskItem,description: String)= viewModelScope.launch {
+        repository.insertTaskItem(newTask)
+        _selectedTaskDescription.value = description
+
     }
 
 

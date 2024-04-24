@@ -20,9 +20,13 @@ class TaskItemViewHolder(
     @RequiresApi(Build.VERSION_CODES.O)
     fun bindTaskItem(taskItem: TaskItem){
         binding.name.text=taskItem.name
+        //added
+        binding.description.text = taskItem.desc // Display description
+        //added
         if (taskItem.isCompleted()){
             binding.name.paintFlags=Paint.STRIKE_THRU_TEXT_FLAG
             binding.dueTime.paintFlags=Paint.STRIKE_THRU_TEXT_FLAG
+            binding.description.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
         }
         binding.completeButton.setImageResource(taskItem.imageResource())
         binding.completeButton.setColorFilter(taskItem.imageColor(context))
