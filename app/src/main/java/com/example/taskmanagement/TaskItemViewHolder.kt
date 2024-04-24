@@ -20,6 +20,9 @@ class TaskItemViewHolder(
     @RequiresApi(Build.VERSION_CODES.O)
     fun bindTaskItem(taskItem: TaskItem){
         binding.name.text=taskItem.name
+        //added
+        binding.description.text = taskItem.desc // Display description
+        //added
 
         // Check if start date is available
         if (!taskItem.startDateString.isNullOrEmpty()) {
@@ -39,6 +42,7 @@ class TaskItemViewHolder(
         if (taskItem.isCompleted()){
             binding.name.paintFlags=Paint.STRIKE_THRU_TEXT_FLAG
             binding.dueTime.paintFlags=Paint.STRIKE_THRU_TEXT_FLAG
+            binding.description.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
         }
         binding.completeButton.setImageResource(taskItem.imageResource())
         binding.completeButton.setColorFilter(taskItem.imageColor(context))
@@ -52,11 +56,10 @@ class TaskItemViewHolder(
         binding.taskCellContainer.setOnClickListener{
             clickListener.editTaskitem(taskItem)
         }
-        if(taskItem.dueTime() != null) {
-            binding.dueTime.text = timeFormat.format(taskItem.dueTime())
-        }
-        else {
+        if(taskItem.dueTime() != null)
+            binding.dueTime.text= timeFormat.format(taskItem.dueTime())
+        else
             binding.dueTime.text = ""
-        }
+
     }
 }
