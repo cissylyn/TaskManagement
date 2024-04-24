@@ -43,6 +43,8 @@ class NewTaskSheet(var taskItem: TaskItem?) : BottomSheetDialogFragment() {
                 dueTime = taskItem!!.dueTime()!!
                 updateTimeButtonText()
             }
+
+            // Set the start and end date strings from taskItem to the UI
             if (!taskItem!!.startDateString.isNullOrEmpty()) {
                 binding.startDateButton.text = taskItem!!.startDateString
             }
@@ -56,16 +58,12 @@ class NewTaskSheet(var taskItem: TaskItem?) : BottomSheetDialogFragment() {
 
         taskViewModel = ViewModelProvider(requireActivity())[TaskViewModel::class.java]
 
-
-
         binding.timePickerButton.setOnClickListener {
             openTimePicker()
         }
         binding.saveButton.setOnClickListener {
             saveAction()
         }
-
-
 
         binding.startDateButton.setOnClickListener {
             openStartDatePicker()
@@ -74,8 +72,8 @@ class NewTaskSheet(var taskItem: TaskItem?) : BottomSheetDialogFragment() {
         binding.endDateButton.setOnClickListener {
             openEndDatePicker()
         }
-
     }
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun openTimePicker() {
@@ -99,7 +97,6 @@ class NewTaskSheet(var taskItem: TaskItem?) : BottomSheetDialogFragment() {
         binding.timePickerButton.text = String.format("%02d:%02d", dueTime!!.hour, dueTime!!.minute)
     }
 
-
     @RequiresApi(Build.VERSION_CODES.O)
     private fun openStartDatePicker() {
         val datePicker = MaterialDatePicker.Builder.datePicker()
@@ -115,20 +112,21 @@ class NewTaskSheet(var taskItem: TaskItem?) : BottomSheetDialogFragment() {
         datePicker.show(parentFragmentManager, "StartDatePicker")
     }
 
-        @RequiresApi(Build.VERSION_CODES.O)
-        private fun openEndDatePicker() {
-            val datePicker = MaterialDatePicker.Builder.datePicker()
-                .setTitleText("Select End Date")
-                .build()
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun openEndDatePicker() {
+        val datePicker = MaterialDatePicker.Builder.datePicker()
+            .setTitleText("Select End Date")
+            .build()
 
-            datePicker.addOnPositiveButtonClickListener { selection ->
-                endDate = selection
-                endDateString = formatDate(selection)
-                updateDateButtonText()
-            }
-
-            datePicker.show(parentFragmentManager, "EndDatePicker")
+        datePicker.addOnPositiveButtonClickListener { selection ->
+            endDate = selection
+            endDateString = formatDate(selection)
+            updateDateButtonText()
         }
+
+        datePicker.show(parentFragmentManager, "EndDatePicker")
+    }
+
 
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -163,8 +161,14 @@ class NewTaskSheet(var taskItem: TaskItem?) : BottomSheetDialogFragment() {
             taskItem!!.name = name
             taskItem!!.desc = desc
             taskItem!!.dueTimeString = dueTimeString
-            taskItem!!.startDateString = startDateString
-            taskItem!!.endDateString = endDateString
+//            taskItem!!.startDateString = startDateString
+//            taskItem!!.endDateString = endDateString
+            if (!startDateString.isNullOrEmpty()) {
+                taskItem!!.startDateString = startDateString
+            }
+            if (!endDateString.isNullOrEmpty()) {
+                taskItem!!.endDateString = endDateString
+            }
             taskViewModel.updateTaskItem(taskItem!!)
         }
         binding.name.setText("")

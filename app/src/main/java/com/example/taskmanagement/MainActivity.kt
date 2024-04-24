@@ -12,6 +12,7 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
@@ -23,10 +24,15 @@ import com.example.taskmanagement.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity(),TaskItemClickListener {
 
+    private lateinit var welcomeTextView: TextView
+
+
     private lateinit var binding: ActivityMainBinding
     private val taskViewModel: TaskViewModel by viewModels {
         TaskItemModelFactory((application as TodoApplication).repository, this)
     }
+
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,15 +56,15 @@ class MainActivity : AppCompatActivity(),TaskItemClickListener {
 
 
         //added
-        val filter = IntentFilter("com.example.taskmanagement.NOTIFICATION_ACTION")
-        registerReceiver(notificationReceiver, filter)
+////        val filter = IntentFilter("com.example.taskmanagement.NOTIFICATION_ACTION")
+//        val filter = IntentFilter("com.example.taskmanagement.NOTIFICATION_ACTION")
+//        registerReceiver(notificationReceiver, filter, null, null, Context.BIND_AUTO_CREATE or Context.RECEIVER_VISIBLE_TO_INSTANT_APPS)
+
 //added
         binding.newTaskButton.setOnClickListener {
             NewTaskSheet(taskItem = null).show(supportFragmentManager, "newTaskTag")
 
         }
-
-
 
         setRecyclerView()
 
@@ -204,23 +210,6 @@ class MainActivity : AppCompatActivity(),TaskItemClickListener {
 //            Log.e("NotificationTest", "Error creating notification", e)
 //        }
 //    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        // Unregister the receiver when the activity is destroyed
-        unregisterReceiver(notificationReceiver)
-    }
-
-    private val notificationReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            // Handle notification action here
-            val message = intent?.getStringExtra("message")
-            // For example, show a toast
-            message?.let {
-                Toast.makeText(context, "Notification Action: $it", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
 
 
 }
