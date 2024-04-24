@@ -47,6 +47,34 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp">
+
+        <Button
+            android:id="@+id/startDateButton"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Select Start Date"
+            android:onClick="openStartDatePicker"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/endDateButton"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Select End Date"
+            android:onClick="openEndDatePicker"
+            android:layout_marginStart="8dp"/>
+    </LinearLayout>
+
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/timePickerButton"
         android:layout_width="match_parent"

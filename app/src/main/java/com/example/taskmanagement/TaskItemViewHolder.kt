@@ -20,6 +20,22 @@ class TaskItemViewHolder(
     @RequiresApi(Build.VERSION_CODES.O)
     fun bindTaskItem(taskItem: TaskItem){
         binding.name.text=taskItem.name
+
+        // Check if start date is available
+        if (!taskItem.startDateString.isNullOrEmpty()) {
+            binding.startDateTextView.text = "Start Date: ${taskItem.startDateString}"
+        } else {
+            binding.startDateTextView.text = "Start Date: N/A"
+        }
+
+        // Check if end date is available
+        if (!taskItem.endDateString.isNullOrEmpty()) {
+            binding.endDateTextView.text = "End Date: ${taskItem.endDateString}"
+        } else {
+            binding.endDateTextView.text = "End Date: N/A"
+        }
+
+
         if (taskItem.isCompleted()){
             binding.name.paintFlags=Paint.STRIKE_THRU_TEXT_FLAG
             binding.dueTime.paintFlags=Paint.STRIKE_THRU_TEXT_FLAG
@@ -36,10 +52,11 @@ class TaskItemViewHolder(
         binding.taskCellContainer.setOnClickListener{
             clickListener.editTaskitem(taskItem)
         }
-        if(taskItem.dueTime() != null)
-            binding.dueTime.text= timeFormat.format(taskItem.dueTime())
-        else
+        if(taskItem.dueTime() != null) {
+            binding.dueTime.text = timeFormat.format(taskItem.dueTime())
+        }
+        else {
             binding.dueTime.text = ""
-
+        }
     }
 }

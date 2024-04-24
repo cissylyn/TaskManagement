@@ -3,21 +3,23 @@ package com.example.taskmanagement
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 
 
 class NotificationReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context?, intent: Intent?) {
-        val title = intent?.getStringExtra("title")
-        val content = intent?.getStringExtra("content")
+    override fun onReceive(context: Context, intent: Intent) {
+        val taskName = intent.getStringExtra("taskName") ?: return
 
-        if (context != null && title != null && content != null) {
-            val notificationHelper = NotificationHelper(context)
-            val notification = notificationHelper.createNotification(
-                title,
-                content,
-                Intent(context, MainActivity::class.java)
-            )
-            notificationHelper.notificationManager.notify(1, notification)
-        }
+        val channelId = "task_reminder_channel"
+        val builder = NotificationCompat.Builder(context, channelId)
+            .setSmallIcon(R.drawable.notification_icon)
+            .setContentTitle("Task Reminder")
+            .setContentText("Don't forget to complete task: $taskName")
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+//        with(NotificationManagerCompat.from(context)) {
+//            notify(System.currentTimeMillis().toInt(), builder.build())
+//        }
     }
 }

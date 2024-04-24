@@ -11,13 +11,22 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModelProvider
 import com.example.taskmanagement.databinding.FragmentNewTaskSheetBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.datepicker.MaterialDatePicker
+import java.text.SimpleDateFormat
 import java.time.LocalTime
+import java.util.Date
+import java.util.Locale
 
 class NewTaskSheet(var taskItem: TaskItem?) : BottomSheetDialogFragment() {
 
     private lateinit var binding: FragmentNewTaskSheetBinding
     private lateinit var taskViewModel: TaskViewModel
     private var dueTime: LocalTime? = null
+    private var startDate: Long? = null
+    private var endDate: Long? = null
+    private var startDateString: String? = null
+    private var endDateString: String? = null
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -33,6 +42,13 @@ class NewTaskSheet(var taskItem: TaskItem?) : BottomSheetDialogFragment() {
                 dueTime = taskItem!!.dueTime()!!
                 updateTimeButtonText()
             }
+            if (!taskItem!!.startDateString.isNullOrEmpty()) {
+                binding.startDateButton.text = taskItem!!.startDateString
+            }
+
+            if (!taskItem!!.endDateString.isNullOrEmpty()) {
+                binding.endDateButton.text = taskItem!!.endDateString
+            }
         } else {
             binding.taskTitle.text = "New Task"
         }
@@ -46,6 +62,15 @@ class NewTaskSheet(var taskItem: TaskItem?) : BottomSheetDialogFragment() {
         binding.timePickerButton.setOnClickListener {
             openTimePicker()
         }
+
+        binding.startDateButton.setOnClickListener {
+            openStartDatePicker()
+        }
+
+        binding.endDateButton.setOnClickListener {
+            openEndDatePicker()
+        }
+
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -70,18 +95,65 @@ class NewTaskSheet(var taskItem: TaskItem?) : BottomSheetDialogFragment() {
         binding.timePickerButton.text = String.format("%02d:%02d", dueTime!!.hour, dueTime!!.minute)
     }
 
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun openStartDatePicker() {
+        val datePicker = MaterialDatePicker.Builder.datePicker()
+            .setTitleText("Select Start Date")
+            .build()
+
+        datePicker.addOnPositiveButtonClickListener { selection ->
+            startDate = selection
+            startDateString = formatDate(selection)
+            updateDateButtonText()
+        }
+
+        datePicker.show(parentFragmentManager, "StartDatePicker")
+    }
+
+        @RequiresApi(Build.VERSION_CODES.O)
+        private fun openEndDatePicker() {
+            val datePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Select End Date")
+                .build()
+
+            datePicker.addOnPositiveButtonClickListener { selection ->
+                endDate = selection
+                endDateString = formatDate(selection)
+                updateDateButtonText()
+            }
+
+            datePicker.show(parentFragmentManager, "EndDatePicker")
+        }
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun updateDateButtonText() {
+        binding.startDateButton.text = startDate?.let { formatDate(it) } ?: "Select Start Date"
+        binding.endDateButton.text = endDate?.let { formatDate(it) } ?: "Select End Date"
+    }
+
+    private fun formatDate(timestamp: Long): String {
+        val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        return sdf.format(Date(timestamp))
+    }
+
+
     @RequiresApi(Build.VERSION_CODES.O)
     private fun saveAction() {
         val name = binding.name.text.toString()
         val desc = binding.desc.text.toString()
         val dueTimeString = dueTime?.let { TaskItem.timeFormatter.format(it) }
+
         if (taskItem == null) {
-            val newTask = TaskItem(name, desc, null, null)
+            val newTask = TaskItem(name=name, desc=desc, null, null, startDateString=startDateString, endDateString=endDateString)
             taskViewModel.addTaskItem(newTask)
         } else {
             taskItem!!.name = name
             taskItem!!.desc = desc
             taskItem!!.dueTimeString = dueTimeString
+            taskItem!!.startDateString = startDateString
+            taskItem!!.endDateString = endDateString
             taskViewModel.updateTaskItem(taskItem!!)
         }
         binding.name.setText("")

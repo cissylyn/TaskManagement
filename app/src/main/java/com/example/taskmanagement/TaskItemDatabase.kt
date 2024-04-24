@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = [TaskItem::class], version = 3, exportSchema = false)
+@Database(entities = [TaskItem::class], version = 4, exportSchema = false)
 abstract class TaskItemDatabase : RoomDatabase() {
 
     abstract fun taskItemDao(): TaskItemDao
@@ -29,7 +29,7 @@ abstract class TaskItemDatabase : RoomDatabase() {
                 "task_item_database"
             )
                 // Add migrations from version 1 to 3
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                 .build()
         }
 
@@ -47,6 +47,17 @@ abstract class TaskItemDatabase : RoomDatabase() {
                 // This is where you would modify the schema or perform data migration
             }
         }
+
+        // Define migration from version 3 to 4
+        private val MIGRATION_3_4: Migration = object : Migration(3, 4) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Migration logic from version 3 to 4
+                database.execSQL("ALTER TABLE task_item_table ADD COLUMN startDateString TEXT DEFAULT NULL")
+                database.execSQL("ALTER TABLE task_item_table ADD COLUMN endDateString TEXT DEFAULT NULL")
+            }
+        }
+
+        private val MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
     }
 }
 //i have changed this code

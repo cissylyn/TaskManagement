@@ -17,6 +17,8 @@ class TaskItem (
     @ColumnInfo(name="desc") var desc: String,
     @ColumnInfo(name="dueTimeString") var dueTimeString: String?,
     @ColumnInfo(name="completedDateString") var completedDateString: String?,
+    @ColumnInfo(name="startDateString") var startDateString: String?,
+    @ColumnInfo(name="endDateString") var endDateString: String?,
     @PrimaryKey(autoGenerate=true) var id: Int = 0
 ) {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -36,6 +38,32 @@ class TaskItem (
         return dueTimeString?.let { timeString ->
             try {
                 timeFormatter.parse(timeString, LocalTime::from)
+            } catch (e: Exception) {
+                // Handle parsing exception gracefully
+                null
+            }
+        }
+    }
+
+
+    // New functions to handle startDate and endDate
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun startDate(): LocalDate? {
+        return startDateString?.let { dateString ->
+            try {
+                dateFormatter.parse(dateString, LocalDate::from)
+            } catch (e: Exception) {
+                // Handle parsing exception gracefully
+                null
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun endDate(): LocalDate? {
+        return endDateString?.let { dateString ->
+            try {
+                dateFormatter.parse(dateString, LocalDate::from)
             } catch (e: Exception) {
                 // Handle parsing exception gracefully
                 null

@@ -29,7 +29,16 @@ class TaskViewModel(private  val repository: TaskItemRepository,  private val co
     fun addTaskItem(newTask:TaskItem)=viewModelScope.launch {
        repository.insertTaskItem(newTask)
    }
-
+//    fun addTaskItem(name: String, desc: String, dueTimeString: String?, startDateString: String?, endDateString: String?) = viewModelScope.launch {
+//        val newTask = TaskItem(name, desc, dueTimeString, null, startDateString, endDateString)
+//        repository.insertTaskItem(newTask)
+//    }
+//
+//    fun updateTaskItem(id: Int, name: String, desc: String, dueTimeString: String?, startDateString: String?, endDateString: String?) = viewModelScope.launch {
+//        val taskItem = TaskItem(name, desc, dueTimeString, null, startDateString, endDateString)
+//        taskItem.id = id
+//        repository.updateTaskItem(taskItem)
+//    }
 
    fun updateTaskItem(taskItem: TaskItem)=viewModelScope.launch{
        repository.updateTaskItem(taskItem)
