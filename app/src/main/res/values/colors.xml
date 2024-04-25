@@ -4,8 +4,8 @@
     <color name="purple">#6F1C7E</color>
     <color name="white">#FFFFFF</color>
     <color name="primary_light">#D1C4E9</color>
-    <color name="primary_color">#2196F3</color>  <!-- Blue -->
-    <color name="accent_color">#FF4081</color>   <!-- Pink -->
+    <color name="primary_color">#03033E</color>  <!-- Blue -->
+    <color name="accent_color">#EC7526</color>   <!-- Pink -->
     <color name="background_color">#FFFFFF</color> <!-- White -->
     <color name="primary_text_color">#212121</color> <!-- Dark Gray -->
     <color name="text_color_secondary">#757575</color> <!-- Light Gray -->
@@ -15,5 +15,6 @@
     <color name="accent1_color">#FAFAFA</color>
     <color name="progress_bar_background_color">#821D93</color>
     <color name="progress_color">#FF5722</color>
+
 </resources>
 

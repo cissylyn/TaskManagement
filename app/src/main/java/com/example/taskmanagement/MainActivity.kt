@@ -1,6 +1,7 @@
 package com.example.taskmanagement
 
 import android.Manifest
+import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.BroadcastReceiver
@@ -8,10 +9,13 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -22,13 +26,16 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.taskmanagement.databinding.ActivityMainBinding
+import com.example.taskmanagement.databinding.TaskItemCellBinding
 
 class MainActivity : AppCompatActivity(),TaskItemClickListener {
 
-    private lateinit var welcomeTextView: TextView
-
+    companion object {
+        const val FILE_PICKER_REQUEST_CODE = 1001
+    }
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var itembinding: TaskItemCellBinding
     private val taskViewModel: TaskViewModel by viewModels {
         TaskItemModelFactory((application as TodoApplication).repository, this)
 
@@ -40,6 +47,7 @@ class MainActivity : AppCompatActivity(),TaskItemClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+        itembinding = TaskItemCellBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
 
@@ -58,12 +66,7 @@ class MainActivity : AppCompatActivity(),TaskItemClickListener {
         showNotification(this, notificationId, notificationBuilder)
 
 
-        //added
-////        val filter = IntentFilter("com.example.taskmanagement.NOTIFICATION_ACTION")
-//        val filter = IntentFilter("com.example.taskmanagement.NOTIFICATION_ACTION")
-//        registerReceiver(notificationReceiver, filter, null, null, Context.BIND_AUTO_CREATE or Context.RECEIVER_VISIBLE_TO_INSTANT_APPS)
 
-//added
         binding.newTaskButton.setOnClickListener {
             NewTaskSheet(taskItem = null).show(supportFragmentManager, "newTaskTag")
 
@@ -71,7 +74,9 @@ class MainActivity : AppCompatActivity(),TaskItemClickListener {
 
         setRecyclerView()
 
-//        testNotification()
+        itembinding.uploadButton.setOnClickListener {
+            openFilePicker()
+        }
 
         // Observe changes in the task list and update the progress bar
         taskViewModel.taskItems.observe(this) { tasks ->
@@ -127,6 +132,20 @@ class MainActivity : AppCompatActivity(),TaskItemClickListener {
         taskViewModel.deleteTaskItem(taskItem)
         updateCompletionHint()
     }
+
+    fun onUploadButtonClick(view: View) {
+        openFilePicker()
+    }
+
+
+    override fun onUploadButtonClick(taskItem: TaskItem) {
+        // Handle file upload here
+        Toast.makeText(this, "Upload clicked for ${taskItem.name}", Toast.LENGTH_SHORT).show()
+
+        // You can open a file picker or perform any upload action here
+        openFilePicker()
+    }
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun addOrUpdateNotification(taskItem: TaskItem) {
@@ -209,10 +228,6 @@ class MainActivity : AppCompatActivity(),TaskItemClickListener {
         notificationManager.notify(notificationId, notificationBuilder.build())
     }
 
-
-
-
-
     fun buildNotification(context: Context, taskName: String): NotificationCompat.Builder {
         val channelId = "task_reminder_channel"
         return NotificationCompat.Builder(context, channelId)
@@ -222,24 +237,52 @@ class MainActivity : AppCompatActivity(),TaskItemClickListener {
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
     }
 
-//    private fun testNotification() {
-//        val title = "Test Notification"
-//        val content = "Thiiiissssss is a test"
-//        try {
-//            val intent = Intent(this, NotificationReceiver::class.java)
-//            intent.putExtra("title", title)
-//            intent.putExtra("content", content)
-//
-//            val notification = NotificationHelper(this).createNotification(title, content, intent)
-//
-//            val notificationManager =
-//                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-//            notificationManager.notify(1, notification)
-//        } catch (e:Exception)
-//        {
-//            Log.e("NotificationTest", "Error creating notification", e)
-//        }
-//    }
+
+
+    private fun openFilePicker() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT)
+        intent.type = "*/*"  // Allow any file type to be selected
+        startActivityForResult(intent, FILE_PICKER_REQUEST_CODE)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == FILE_PICKER_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            val selectedFileUri: Uri? = data?.data
+            if (selectedFileUri != null) {
+                uploadFile(selectedFileUri)
+            }
+        }
+    }
+
+    private fun uploadFile(fileUri: Uri) {
+        val fileName = getFileName(fileUri)
+        Toast.makeText(this, "Selected file: $fileName", Toast.LENGTH_SHORT).show()
+
+        // Implement file upload logic here
+        // For example, you can upload the file to a server or save it locally
+    }
+
+    private fun getFileName(uri: Uri): String {
+        var result: String? = null
+        if (uri.scheme == "content") {
+            val cursor = contentResolver.query(uri, null, null, null, null)
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    result = it.getString(it.getColumnIndexOrThrow("_display_name"))
+                }
+            }
+        }
+        if (result == null) {
+            result = uri.path
+            val cut = result?.lastIndexOf('/')
+            if (cut != null && cut != -1) {
+                result = result?.substring(cut + 1)
+            }
+        }
+        return result ?: "Unknown"
+    }
 
 
 }
