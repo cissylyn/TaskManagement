@@ -1,6 +1,7 @@
 package com.example.taskmanagement
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -13,6 +14,7 @@ import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.util.Log
 import android.view.View
 import android.widget.ImageButton
@@ -26,6 +28,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.taskmanagement.databinding.ActivityMainBinding
 import com.example.taskmanagement.databinding.TaskItemCellBinding
+import java.io.File
 
 class MainActivity : AppCompatActivity(),TaskItemClickListener {
 
@@ -105,15 +108,6 @@ class MainActivity : AppCompatActivity(),TaskItemClickListener {
     }
 
     fun onUploadButtonClick(view: View) {
-        openFilePicker()
-    }
-
-
-    override fun onUploadButtonClick(taskItem: TaskItem) {
-        // Handle file upload here
-        Toast.makeText(this, "Upload clicked for ${taskItem.name}", Toast.LENGTH_SHORT).show()
-
-        // You can open a file picker or perform any upload action here
         openFilePicker()
     }
 
@@ -227,33 +221,64 @@ class MainActivity : AppCompatActivity(),TaskItemClickListener {
         }
     }
 
-    private fun uploadFile(fileUri: Uri) {
+    private fun uploadFile(fileUri: Uri?) {
+        if (fileUri == null) {
+            Toast.makeText(this, "File URI is null", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val fileName = getFileName(fileUri)
+        if (fileName.isEmpty()) {
+            Toast.makeText(this, "Failed to get file name", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         Toast.makeText(this, "Selected file: $fileName", Toast.LENGTH_SHORT).show()
 
-        // Implement file upload logic here
-        // For example, you can upload the file to a server or save it locally
-    }
+        try {
+            val inputStream = contentResolver.openInputStream(fileUri)
+            val outputStream = openFileOutput(fileName, Context.MODE_PRIVATE)
 
-    private fun getFileName(uri: Uri): String {
-        var result: String? = null
-        if (uri.scheme == "content") {
-            val cursor = contentResolver.query(uri, null, null, null, null)
-            cursor?.use {
-                if (it.moveToFirst()) {
-                    result = it.getString(it.getColumnIndexOrThrow("_display_name"))
+            inputStream?.use { input ->
+                outputStream.use { output ->
+                    input.copyTo(output)
                 }
             }
+
+            Toast.makeText(this, "File saved successfully", Toast.LENGTH_SHORT).show()
+
+            // Update the TextView in the CardView to display the selected file name
+            itembinding.fileInfo.text = "Selected File: $fileName"
+            itembinding.fileInfo.visibility = View.VISIBLE
+
+        } catch (e: Exception) {
+            Toast.makeText(this, "Error saving file: ${e.message}", Toast.LENGTH_SHORT).show()
+            e.printStackTrace()
         }
-        if (result == null) {
-            result = uri.path
-            val cut = result?.lastIndexOf('/')
-            if (cut != null && cut != -1) {
-                result = result?.substring(cut + 1)
-            }
-        }
-        return result ?: "Unknown"
     }
 
+
+
+    @SuppressLint("Range")
+    private fun getFileName(uri: Uri): String {
+        var fileName: String? = null
+
+        when {
+            uri.scheme == "content" -> {
+                val cursor = contentResolver.query(uri, null, null, null, null)
+                cursor?.use {
+                    if (it.moveToFirst()) {
+                        fileName = it.getString(it.getColumnIndexOrThrow("_display_name"))
+                    }
+                }
+            }
+
+            uri.scheme == "file" -> {
+                fileName = File(uri.path).name
+            }
+        }
+
+        return fileName ?: "Unknown"
+    }
 
 }
