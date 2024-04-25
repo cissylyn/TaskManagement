@@ -75,6 +75,18 @@ class TaskItem (
     fun isCompleted(): Boolean {
         return completedDate() != null
     }
+    //added today
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun calculateProgress(tasks: List<TaskItem>): Int {
+        val completedTasks = tasks.count { it.isCompleted() }
+        val totalTasks = tasks.size
+        return if (totalTasks > 0) {
+            (completedTasks.toDouble() / totalTasks.toDouble() * 100).toInt()
+        } else {
+            0
+        }
+    }
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun imageResource(): Int {

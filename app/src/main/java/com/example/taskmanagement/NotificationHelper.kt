@@ -1,58 +1,53 @@
-package com.example.taskmanagement
-import android.Manifest
-import android.app.PendingIntent
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.graphics.Color
-import androidx.core.app.ActivityCompat
+import android.os.Build
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
+import java.util.*
+import android.os.Handler
+import com.example.taskmanagement.R
 
-object NotificationHelper {
+class NotificationHelper(private val context: Context) {
 
-    private const val CHANNEL_ID = "task_notifications"
-    private const val NOTIFICATION_ID = 1001
+    private val CHANNEL_ID = "task_notification_channel"
+    private val NOTIFICATION_ID = 123
 
-    fun createNotification(context: Context, title: String, content: String) {
-        val intent = Intent(context, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        val pendingIntent = PendingIntent.getActivity(context, 0, intent,
-            PendingIntent.FLAG_IMMUTABLE)
-
-        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.baseline_circle_notifications_24)
-            .setContentTitle(title)
-            .setContentText(content)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setContentIntent(pendingIntent)
-            .setColor(Color.BLUE)
-            .setAutoCancel(true)
-
-        val notification = builder.build()
-
-//        val notificationManager = NotificationManagerCompat.from(context)
-//        if (ActivityCompat.checkSelfPermission(
-//                this,
-//                Manifest.permission.POST_NOTIFICATIONS
-//            ) != PackageManager.PERMISSION_GRANTED
-//        ) {
-//            // TODO: Consider calling
-//            //    ActivityCompat#requestPermissions
-//            // here to request the missing permissions, and then overriding
-//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//            //                                          int[] grantResults)
-//            // to handle the case where the user grants the permission. See the documentation
-//            // for ActivityCompat#requestPermissions for more details.
-//            return
-//        }
-//        notificationManager.notify(NOTIFICATION_ID, notification)
+    init {
+        createNotificationChannel()
     }
 
-    fun createNotificationForTask(context: Context, taskName: String, taskDescription: String) {
-        val title = "Task Due: $taskName"
-        val content = taskDescription
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "Task Notifications"
+            val descriptionText = "Channel for Task Notifications"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+                description = descriptionText
+            }
+            val notificationManager: NotificationManager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
 
-        createNotification(context, title, content)
+    fun scheduleNotification(taskDescription: String, dueTimeInMillis: Long) {
+        val currentTimeInMillis = Calendar.getInstance().timeInMillis
+        val delayInMillis = dueTimeInMillis - currentTimeInMillis
+
+        Handler().postDelayed({
+            showNotification(taskDescription)
+        }, delayInMillis)
+    }
+
+    private fun showNotification(taskDescription: String) {
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(R.drawable.baseline_circle_notifications_24)
+            .setContentTitle("Task Reminder")
+            .setContentText(taskDescription)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(NOTIFICATION_ID, builder.build())
     }
 }

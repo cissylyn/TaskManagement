@@ -1,5 +1,6 @@
 package com.example.taskmanagement
 
+import NotificationReceiver
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
@@ -48,6 +49,7 @@ class TaskViewModel(private  val repository: TaskItemRepository,  private val co
        if (!taskItem.isCompleted())
            taskItem.completedDateString = TaskItem.dateFormatter.format(LocalDate.now())
         repository.updateTaskItem(taskItem)
+
     }
 
 
@@ -96,6 +98,21 @@ class TaskViewModel(private  val repository: TaskItemRepository,  private val co
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun calculateProgress(tasks: List<TaskItem>): Int {
+        val completedTasks = tasks.count { it.isCompleted() }
+        val totalTasks = tasks.size
+        return if (totalTasks > 0) {
+            (completedTasks.toDouble() / totalTasks.toDouble() * 100).toInt()
+        } else {
+            0
+        }
+    }
+
+
+
+
+
 
 }
 class TaskItemModelFactory(private val repository: TaskItemRepository, val context: Context):ViewModelProvider.Factory{
@@ -104,4 +121,10 @@ class TaskItemModelFactory(private val repository: TaskItemRepository, val conte
             return TaskViewModel(repository, context)as T
         throw IllegalArgumentException("unknown class for view model")
     }
+
+
+
+
+
+
 }
