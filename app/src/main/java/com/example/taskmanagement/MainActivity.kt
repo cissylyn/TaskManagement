@@ -19,6 +19,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.taskmanagement.databinding.ActivityMainBinding
 
@@ -30,6 +31,7 @@ class MainActivity : AppCompatActivity(),TaskItemClickListener {
     private lateinit var binding: ActivityMainBinding
     private val taskViewModel: TaskViewModel by viewModels {
         TaskItemModelFactory((application as TodoApplication).repository, this)
+
     }
 
 
@@ -40,10 +42,11 @@ class MainActivity : AppCompatActivity(),TaskItemClickListener {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+
         createNotificationChannel()
 
         // Example task name
-        val taskName = "Example Task"
+        val taskName = "dont forget to complete your tasks"
 
         // Build notification
         val notificationBuilder = buildNotification(this, taskName)
@@ -70,16 +73,40 @@ class MainActivity : AppCompatActivity(),TaskItemClickListener {
 
 //        testNotification()
 
+        // Observe changes in the task list and update the progress bar
+        taskViewModel.taskItems.observe(this) { tasks ->
+            val progress = taskViewModel.calculateProgress(tasks)
+            binding.progressBar.progress = progress
+        }
+
 
         //setContentView(R.layout.activity_main),i commented
     }
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun updateCompletionHint() {
+        val tasks = taskViewModel.taskItems.value // Get the current list of tasks
+        tasks?.let {
+            val completedTasks = tasks.count { it.isCompleted() }
+            val totalTasks = it.size
+            val completionText = "$completedTasks/$totalTasks"
+            binding.taskCompletionHint.text = completionText
+            binding.progressBar.progress = completedTasks
+        }
+    }
 
+
+
+    // Assuming 'tasksCompleted' is the number of completed tasks and 'totalTasks' is the total number of tasks
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun setRecyclerView() {
         val mainActivity = this
         taskViewModel.taskItems.observe(this) {
             binding.todoListRecycleView.apply {
                 layoutManager = LinearLayoutManager(applicationContext)
                 adapter = TaskItemAdapter(it, mainActivity)
+                updateCompletionHint()
 
             }
         }
@@ -92,10 +119,13 @@ class MainActivity : AppCompatActivity(),TaskItemClickListener {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun completeTaskItem(taskItem: TaskItem) {
         taskViewModel.setCompleted(taskItem)
+        updateCompletionHint()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun deleteTaskItem(taskItem: TaskItem) {
         taskViewModel.deleteTaskItem(taskItem)
+        updateCompletionHint()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

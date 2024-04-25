@@ -33,6 +33,8 @@ abstract class TaskItemDatabase : RoomDatabase() {
                 .build()
         }
 
+
+
         // Define migrations from version 1 to 2 and from version 2 to 3
         private val MIGRATION_1_2: Migration = object : Migration(1, 2) {
             override fun migrate(database: SupportSQLiteDatabase) {

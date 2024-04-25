@@ -13,5 +13,7 @@
     <color name="accentt_color">#FFF3E0</color>
     <color name="backgrounnd_color">#FFE0B2</color>
     <color name="accent1_color">#FAFAFA</color>
+    <color name="progress_bar_background_color">#821D93</color>
+    <color name="progress_color">#FF5722</color>
 </resources>
 

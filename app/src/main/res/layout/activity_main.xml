@@ -27,14 +27,47 @@
 
     </com.google.android.material.appbar.MaterialToolbar>
 
+    <!-- Progress Bar -->
+    <!-- Your layout XML file -->
 
+    <!-- Heading for Progress -->
+    <TextView
+        android:id="@+id/progress_heading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Progress"
+        android:textColor="@android:color/black"
+        android:textSize="20sp"
+        android:layout_below="@id/topAppBar"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp" />
 
+    <!-- Progress Bar -->
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/progress_heading"
+        android:layout_marginTop="8dp"
+        android:max="100"
+        android:progress="50"
+        android:progressDrawable="@drawable/progress_bar_custom"
+        />
+    <!-- Task Completion TextView -->
+    <TextView
+        android:id="@+id/task_completion_hint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/progress_bar"
+        android:layout_marginStart="8dp"
+        android:textAppearance="?attr/textAppearanceSubtitle1" />
     <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/todoListRecycleView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/topAppBar"
+        android:layout_below="@id/task_completion_hint"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:paddingTop="8dp"

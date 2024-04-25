@@ -1,36 +1,40 @@
-package com.example.taskmanagement
-
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-
-import android.widget.Toast
+import com.example.taskmanagement.R
+import java.util.*
 
 class NotificationReceiver : BroadcastReceiver() {
-//    override fun onReceive(context: Context, intent: Intent) {
-//        val taskName = intent.getStringExtra("taskName") ?: return
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        if (intent?.action == "com.example.taskmanagement.NOTIFICATION_ACTION") {
-            // Handle notification action here, for example, show a toast
-            val message = intent.getStringExtra("message") ?: "Default Message"
-            Toast.makeText(context, "Notification Action: $message", Toast.LENGTH_SHORT).show()
+        context?.let {
+            // Get task details from intent
+            val taskDescription = intent?.getStringExtra("task_description")
+            val taskTimeInMillis = intent?.getLongExtra("task_time", 0L)
 
-        val channelId = "task_reminder_channel"
-        val builder = context?.let {
-            NotificationCompat.Builder(it, channelId)
-                .setSmallIcon(R.drawable.notification_icon)
-                .setContentTitle("Task Reminder")
-//                .setContentText("Don't forget to complete task: $taskName")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-        }
+            // Check if it's time to show the notification
+            val currentTime = Calendar.getInstance().timeInMillis
+            if (currentTime >= taskTimeInMillis!!) {
+                // Build the notification
+                val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
+                    .setSmallIcon(R.drawable.baseline_circle_notifications_24)
+                    .setContentTitle("Task Reminder")
+                    .setContentText(taskDescription)
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 
-//        with(NotificationManagerCompat.from(context)) {
-//            notify(System.currentTimeMillis().toInt(), builder.build())
-//        }
-            // You can launch an activity here, or perform other actions based on the notification tap
+                // Display the notification
+                val notificationManager =
+                    context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                notificationManager.notify(0, notificationBuilder.build())
+            }
         }
+    }
+
+    companion object {
+        const val CHANNEL_ID = "task_notification_channel"
     }
 }
